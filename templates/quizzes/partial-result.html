@@ -1,0 +1,19 @@
+Test return
+
+{% for question in final_questions %}
+	<div class='show-question'>
+		<div class='show-question-content'>
+			{{question['question']}}		
+		</div>
+		<ul>
+			{% for answer in question['q_answers'] %}
+				{% if question['answer_type'] != "textarea" %}
+					<li class="">
+						<span class='answer'>{{answer['answer']}}</span>
+					</li>
+				{% endif %}
+			{% endfor %}
+		</ul>
+	</div>	
+	
+{% endfor %}

@@ -1,0 +1,29 @@
+{% extends 'admin-base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Quizzes{% endblock %}</h1>
+  {% if g.user %}
+    <a class="action" href="{{ url_for('admin_quizzes.quiz') }}">New</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+	<p><a href="{{ url_for('admin.settings')}}">Manage Settings</a></p>
+	<table class="admin-table">
+		<thead>
+			<tr><th>Quiz Name</th><th>Questions</th><th>Grades/Results</th><th>Attempts</th><th>Edit</th></tr>
+		</thead>
+		<tbody>
+		{% for quiz in quizzes %}
+			<tr>				
+				<td>{{ quiz['name'] }}</td>
+				<td><a href="{{ url_for('admin.questions', quiz_id=quiz['id']) }}">{{ quiz['cnt_questions'] or 0 }}</a></td>
+				<td><a href="{{ url_for('admin_grades.grades', quiz_id=quiz['id']) }}">Manage</a></td>
+				<td><a href="{{ url_for('admin_results.index', quiz_id=quiz['id']) }}">{{ quiz['cnt_takings'] or 0 }}</a></td>
+				<td><a href="{{ url_for('admin_quizzes.quiz', id=quiz['id']) }}">Edit</a></td>
+			</tr>
+		{% endfor %}
+		</tbody>
+  
+  </table>
+{% endblock %}

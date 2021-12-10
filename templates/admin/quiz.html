@@ -1,0 +1,114 @@
+{% extends 'admin-base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Add/Edit Quiz{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+
+<p><a href="{{url_for('admin.index')}}">Back to quizzes</a></p>
+
+<form method="post" class="admin-form">
+	<fieldset>
+		<legend>Quiz Name &amp; Settings</legend>
+		
+		<p><label>Name:</label> <input type="text" name="name" value="{{ request.form['name'] or quiz['name'] or '' }}" class="admin-long" required></p>
+		
+		<p><label>Optional description:</label> <textarea name="description" rows="7" cols="60" class="rtf">{{ request.form['description'] or quiz['description'] or ''}}</textarea></p>
+		
+		<p><input type="checkbox" name="randomize" {% if request.form['randomize'] or quiz['randomize'] %}checked{% endif %} value="1"> Randomize questions and pull random <input type="text" name="pull_random" value="{{ request.form['pull_random']  or quiz['pull_random'] or 0}}"> questions from the quiz.  Leave 0 to pull all the questions (default behavior).</p>
+		
+		<p><input type="checkbox" name="randomize_answers" {% if quiz['randomize_answers'] %}checked{% endif %} value="1"> Randomize answers</p>
+		
+		<p><input type="checkbox" name="single_page" {% if quiz['single_page'] %}checked{% endif %} value="1"> Display questions on a single page</p>
+		
+		<p><input type="checkbox" name="require_login" {% if quiz['require_login'] %}checked{% endif %} value="1" id="requireLogin"> Require user login</p>
+		
+		<p id="numAttempts" style="display: {% if quiz['require_login'] %}block{% else %}none{% endif %};"><label>Number of attempts allowed:</label> <input type="text" name="times_to_take" value="{{ request.form['times_to_take'] or quiz['times_to_take'] or 0 }}"> <span class="help">Enter 0 for unlimited attempts</span></p>
+		
+		<p><input type="checkbox" name="no_alert_unanswered" {% if quiz['require_login'] %}checked{% endif %} value="1"> Don't prompt when the user leaves unanswered a non-required question</p>
+	</fieldset>
+	
+	<fieldset>
+		<legend>Quiz Final Screen &amp; Completion Settings</legend>
+		
+		<p><label>Final screen contents:</label> <textarea name="final_screen" rows="7" cols="60" required class="rtf">{{ request.form['final_screen'] or quiz['final_screen'] or ''}}</textarea></p>
+		
+		<h4>Variables</h4>
+		
+		<p>The following variables can be used in the final screen. They will be replaced with dynamic data based on the user's performance on the quiz.</p>
+		
+		<ul>	
+			<li><input type="text" size="15" onclick="this.select();" readonly value="%answers%"> - a list of all questions and answers along with correct / wrong checkmarks where appropriate. User's answers will be shown in blue.</li>
+			<li><input type="text" size="15" onclick="this.select();" readonly value="%points%"> - points collected on the quiz.</li>
+			<li><input type="text" size="15" onclick="this.select();" readonly value="%max-points%"> - maximum number of points.</li>
+			<li><input type="text" size="15" onclick="this.select();" readonly value="%gtitle%"> - grade title of the achieved grade.</li>
+			<li><input type="text" size="15" onclick="this.select();" readonly value="%gdescription%"> - description / contents of the achieved grade (if any)</li>
+			<li><input type="text" size="15" onclick="this.select();" readonly value="%correct%"> - number of correct answers.</li>
+			<li><input type="text" size="15" onclick="this.select();" readonly value="%wrong%"> - number of wrong answers.</li>
+			<li><input type="text" size="15" onclick="this.select();" readonly value="%empty%"> - number of unanswered questions.</li>
+			<li><input type="text" size="15" onclick="this.select();" readonly value="%percent%"> - percent of correctly answered questions.</li>
+			<li><input type="text" size="15" onclick="this.select();" readonly value="%avg-points%"> - the average points earned by other participants on the same quiz.</li>
+			<li><input type="text" size="15" onclick="this.select();" readonly value="%basic-chart%"> - lets you display a chart of user points vs. average collected points. It accepts arguments your_color and avg_color to specify the colors of the bars.</li>
+		</ul>
+		
+		<p><input type="checkbox" name="notify_admin" {% if quiz['notify_admin'] %}checked{% endif %} value="1" id="notifyAdmin" class="email-settings-setter"> Send email to admin when the quiz is completed</p>
+		
+		<p id="adminEmail" style="display: {% if quiz['notify_admin'] %}block{% else %}none{% endif %};"><label>Email to notify:</label> <input type="text" name="notify_email" value="{{ request.form['notify_email'] or quiz['notify_email'] or '' }}"></p>
+		
+		<p><input type="checkbox" name="notify_user" {% if quiz['notify_user'] %}checked{% endif %} value="1" id="notifyUser" class="email-settings-setter"> Send email to the user with their results</p>
+		
+		<div id="emailSettings" style="display: {% if quiz['notify_admin'] or quiz['notify_user'] %}block{% else %}none{% endif %}">
+			<p><label>Email output if sending emails:</label> <textarea name="email_output" rows="7" cols="60" class="rtf">{{ request.form['email_output'] or quiz['email_output'] or ''}}</textarea>
+			<span class="help">leave blank to use the same content as the final screen</span></p>
+			
+			<p><label>Email subject:</label> <input type="text" name="email_subject" value="{{ request.form['email_subject'] or quiz['email_subject'] or '' }}" class="admin-long"> <span class="help">If left empty, a default subject will be used.</span></p>
+		</div>
+		
+		<p><input type="checkbox" name="dont_store_data" {% if quiz['dont_store_data'] %}checked{% endif %} value="1"> Don't store user data on this quiz</p>
+		
+		<p><input type="checkbox" name="require_text_captcha" {% if quiz['require_text_captcha'] %}checked{% endif %} value="1"> Require simple question based captcha to submit</p>
+		
+		<p><input type="checkbox" name="no_ajax" {% if quiz['no_ajax'] %}checked{% endif %} value="1"> Submit with standard form POST, no Ajax</p>
+		
+	</fieldset>	
+	
+	<fieldset>
+		<p><input type="submit" name="save" value="Save">
+		<input type="button" value="Delete" onclick="confirmDelete(this.form);"></p>
+		<input type="hidden" name="del" value="0">	
+	</fieldset>
+</form>
+
+<script>
+$(function(){
+   $('#notifyAdmin').click(function(){   
+      if($(this).prop('checked')) $('#adminEmail').show();
+      else $('#adminEmail').hide();
+   });
+   
+   $('.email-settings-setter').click(function(){   
+      let anyChecked = false;
+      $('.email-settings-setter').each(function(){
+      	if($(this).prop('checked')) anyChecked = true;
+      });
+      
+      if(anyChecked) $('#emailSettings').show();
+      else $('#emailSettings').hide();
+   });
+   
+   $('#requireLogin').click(function(){   
+      if($(this).prop('checked')) $('#numAttempts').show();
+      else $('#numAttempts').hide();
+   });
+});
+
+function confirmDelete(frm) {
+   if(confirm("Are you sure?")) {
+      frm.del.value=1;
+      frm.submit();
+   }
+}
+</script>
+
+{% endblock %}

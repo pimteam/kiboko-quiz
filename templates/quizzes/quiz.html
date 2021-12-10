@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}{{ quiz['name']}}{% endblock %}</h1>
+
+{% endblock %}
+
+{% block content %}
+<p><a href="{{url_for('quizzes.index')}}">Back to Quizzes</a></p>
+ <div id="kiboko_quiz" class="quiz-area {{ 'single-page-quiz' if quiz['single_page'] else '' }}; ">
+ 	{% if quiz['description'] %}
+ 		<div class="quiz-description">
+ 			{{ quiz['description']|safe }}
+ 		</div>
+ 	{% endif %}
+ 	
+ 	<form method="post" class="quiz-form" id="quiz-{{quiz['id']}}">
+ 		{% if quiz['notify_user'] %}
+ 			<p class="watu_taker_email">Please enter your email address <input type="text" name="taker_email" id="takerEmail"></p>
+ 		{% endif %}	
+ 	
+ 		{% for question in questions %}
+ 		
+ 		<div class="question" id="question-{{loop.index}}">
+ 			<div class="question-content">
+ 				{{ question['question'] }}
+ 			</div>
+ 			
+ 			<div class="question-answers">
+ 			{% set qloop = loop %}	
+ 			{% if question['answer_type'] == 'textarea' %}
+ 				<textarea name='answers_{{question['id']}}' rows='5' cols='40' id='textarea_q_{{question['id']}}' class='textarea textarea-{{loop.index}}'></textarea>
+ 			{% else %} 				
+ 				{% for answer in question['answers'] %}
+ 					<input type="hidden" name="answer_ids" class="answer-ids" value="{{answer['id']}}">
+ 					<div class="question-choice">
+ 						<input type="{{question['answer_type']}}" name="answers_{{question['id']}}" id="answer-id-{{answer['id']}}" class="answer answer-{{qloop.index}} answerof-{{question['id']}}" value="{{answer['id']}}" />&nbsp;<label for='answer-id-{{answer['id']}}' id='answer-label-{answer['id']}}' class='answer label-{{qloop.index}}'><span class="answer">{{answer['answer']}}</span></label>
+ 					</div>
+ 				{% endfor %}
+ 			{% endif %}
+ 			</div>
+ 		</div>
+ 		<input type="hidden" name="question_ids" value="{{ question['id']}}">
+ 		<input type="hidden" id="questionType{{qloop.index}}" value="{{ question['answer_type'] }}" class="{{'required' if question['is_required'] else ''}}">
+ 		{% endfor %}
+ 		
+ 		{{text_captcha}}
+ 		
+ 		<div class="submit-quiz">
+ 			<input type="button" value="View Results" onclick="KibokoQuiz.viewResults();" id="action-button">
+ 		</div>
+ 		
+ 	</form>
+ </div>
+ 
+ <div id="loading-result" style="display:none;">
+	<p align="center">Loading...</p>
+</div>	
+ 
+<script type="text/javascript" >
+jQuery(function($) {
+		let question_ids = "{{qid_sql}}";
+		exam_id = {{quiz['id']}};
+		KibokoQuiz.exam_id = exam_id;
+		KibokoQuiz.qArr = question_ids.split(', ');
+		KibokoQuiz.singlePage = '{{quiz['single_page']}}';		
+		KibokoQuiz.noAlertUnanswered = '{{quiz['no_alert_unanswered']}}';
+		KibokoQuiz.ajax_url = '{{request.base_url}}';
+});
+ </script>
+{% endblock %}

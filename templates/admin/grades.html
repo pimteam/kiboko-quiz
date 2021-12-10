@@ -1,0 +1,53 @@
+{% extends 'admin-base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Manage Grades on "{{ quiz['name'] }}"{% endblock %}</h1>
+  {% if g.user %}
+    <a class="action" href="{{ url_for('admin.index') }}">Back to quizzes</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<h2>Add New Grade</h2>
+	
+<div class="form">
+	<form method="post">
+		<p><label>Grade title:</label> <input type="text" name="title" value="" class="long" required></p>
+		<p><label>Grade description</label> <textarea name="description" class="rtf"></textarea></p>
+		<p>From points: <input type="text" class="short" name="gfrom" required> &nbsp; To points: <input type="text" class="short" name="gto" required></p>
+		<p>If this grade is achieved, redirect to URL (optinal): <input type="text" name="redirect_url" class="long"></p>
+		<p><input type="submit" value="Add Grade"></p>
+		<input type="hidden" name="add" value="1">
+	</form>
+</div>
+	
+{% if grades|length %}
+<h2>Existing Grades</h2>
+{% endif %}	
+	
+{% for grade in grades %}
+<div class="form">
+	<form method="post">
+		<p><label>Grade title:</label> <input type="text" name="title" class="long" value="{{ grade['title']}}" required></p>
+		<p><label>Grade description</label> <textarea name="description" class="rtf">{{ grade['description']}}</textarea></p>
+		<p>From points: <input type="text" class="short" name="gfrom" value="{{grade['gfrom']}}" required> &nbsp; To points: <input type="text" class="short" name="gto" value="{{grade['gto']}}" required></p>
+		<p>If this grade is achieved, redirect to URL (optinal): <input type="text" name="redirect_url" class="long" value="{{grade['redirect_url']}}"></p>
+		<p><input type="submit" value="Save"> <input type="button" value="Delete" onclick="confirmDelete(this.form);"></p>
+		<input type="hidden" name="save" value="1">
+		<input type="hidden" name="del" value="">
+		<input type="hidden" name="id" value="{{ grade['id'] }}">
+	</form>
+</div>
+{% endfor %}	
+
+<script type="text/javascript" >
+function confirmDelete(frm) {
+	if(confirm("Are you sure?")) {
+		frm.del.value=1;
+		frm.submit();
+	}
+}
+</script>
+	
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'admin-base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Global Settings{% endblock %}</h1>  
+{% endblock %}
+
+{% block content %}
+	<p><a href="{{ url_for('admin.index')}}">Manage Quizzes</a></p>
+	
+	<form method="post" class="admin-form">
+	<fieldset>
+		<legend>Email Settings</legend>
+		
+		<p><label>Sender name:</label> <input type="text" name="sender_name" value="{{ sender_name['option_value'] or '' }}" class="admin-long"></p>
+		<p><label>Sender email address:</label> <input type="text" name="sender" value="{{ sender['option_value'] or '' }}" class="admin-long" required></p>
+		
+		<p><label>Mail server:</label> <input type="text" name="mail_server" value="{{ email_config['server'] or '' }}" class="admin-long"></p>
+		<p><label>Mail port:</label> <input type="text" name="mail_port" value="{{ email_config['port'] or '' }}" class="admin-long"></p>
+		<p><label>Mail username:</label> <input type="text" name="mail_username" value="{{ email_config['username'] or '' }}" class="admin-long"></p>
+		<p><label>Mail password:</label> <input type="text" name="mail_pass" value="{{ email_config['pass'] or '' }}" class="admin-long"></p>		
+		<p><input type="checkbox" name="mail_use_tls" {% if email_config['use_tls'] %}checked{% endif %} value="1"> Use TLS</p>
+		<p><input type="checkbox" name="mail_use_ssl" {% if email_config['use_ssl'] %}checked{% endif %} value="1"> Use SSL</p>
+	</fieldset>	
+	
+	<fieldset>
+		<p><input type="submit" name="save" value="Save Options"></p>
+	</fieldset>
+	</form>	
+{% endblock %}

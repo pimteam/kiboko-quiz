@@ -1,0 +1,17 @@
+<h2>Details for completed test "{{quiz['name']}}"</h2>
+
+<div class="taking-details">
+
+{% if admin_user %}
+   <p>Details of <b>{{username if username else 'Guest'}}</b></p>
+{% endif %}
+
+<p>Date: {{taking['date']}}</p>
+	<p>Total points collected: <b>{{taking['points']}}</b></p>
+	<p>Achieved grade: <b>{{taking['result']|safe}}</b></p>
+
+	
+	<div id="detailsText" style="background:#EEE;padding:5px;">	
+		<p>{{taking['snapshot']|safe}}</p>
+	</div>
+</div>	

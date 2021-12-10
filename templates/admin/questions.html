@@ -1,0 +1,37 @@
+{% extends 'admin-base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Manage Questions in "{{ quiz['name'] }}"{% endblock %}</h1>
+
+{% endblock %}
+
+{% block content %}
+	<p><a class="action" href="{{ url_for('admin.question', quiz_id=quiz['id']) }}">Crete a new question</a>
+	| <a class="action" href="{{ url_for('admin.index') }}">Back to quizzes</a></p>
+
+	{% if questions %}
+	<table class="admin-table">
+		<thead>
+			<tr><th>Question</th><th>Question type</th><th>Required?</th><th>Number of answers</th><th>Action</th></tr>
+		</thead>
+		<tbody>
+			{% for question in questions %}
+				{% if cls == '' %}
+					{% set cls = 'alternate' %}
+				{% else %}
+					{% set cls = '' %}
+				{% endif %}
+				<tr class="{{ cls }}">
+					<td>{{ question['question'] }}</td>
+					<td>{{ question['answer_type'] }}</td>
+					<td>{{ 'Yes' if question['is_required'] else 'No'}}</td>
+					<td>{{ question['cnt_answers'] }}</td>
+					<td><a class="action" href="{{ url_for('admin.question', quiz_id=quiz['id'], id = question['id']) }}">Edit</a>
+					<a class="action" href="{{ url_for('admin.questions', del = question['id'], quiz_id=quiz['id']) }}" onclick="return confirm('Are you sure?');">Delete</a></td>
+				</tr>
+			{% endfor %}
+		</tbody>
+  
+  </table>
+  {% endif %}
+{% endblock %}

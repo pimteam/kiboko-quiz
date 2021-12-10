@@ -1,0 +1,92 @@
+{% extends 'admin-base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Results of {{quiz['name']}}{% endblock %}</h1>  
+{% endblock %}
+
+{% block content %}
+	<p><a href="{{ url_for('admin.index') }}">Back to quizzes</a></p>
+	
+	<form method="post">
+	<table class="admin-table">
+		<thead>
+			<tr><th><input type="checkbox" onclick="selectAll(this);"></th><th>Name &amp; Email</th><th>Date</th><th>Points</th><th>% Correct</th><th>Result</th><th>Details</th><th>Delete</th></tr>
+		</thead>
+		<tbody>
+		
+		{% for result in results %}
+			{% set cls = "alternate" if cls == ''  else '' %}
+			<tr class="{{cls}}">
+				<td><input type="checkbox" name="ids" value="{{result['id']}}" class="chk" onclick="showHideButton();"></td>
+				<td>{{result['username'] or 'Guest'}}</td>
+				<td>{{result['date']}}</td>
+				<td>{{result['points']}}</td>
+				<td>{{result['percent_correct']}}%</td>
+				<td>{{result['result']|safe}}</td>
+				<td><a href="#" onclick="loadDetails({{result['id']}});return false;">View</a></td>
+				<td><a href="{{ url_for('admin_results.index', quiz_id=quiz['id'], del = result['id']) }}" onclick="if(!confirm('Are you sure?')) return false;">Delete</a></td>
+			</tr>
+		{% endfor %}
+		</tbody>  
+  </table>
+	
+	<p align="center" style="display:none;" id="massFrm">
+		<input type="button" class="button" value="Delete selected" onclick="confirmDelTakings(this.form);">
+		<input type="hidden" name="del_takings" value="0">
+	</p>  
+  
+  </form>
+  
+  <p align="center">
+    {%if offset > 0 %}
+       <a href="{{ url_for('admin_results.index', quiz_id=quiz['id'], offset = offset - limit) }}">Previous page</a>
+  	 {% endif %}
+  	 &nbsp;
+  	 {%if count > limit + offset %}
+  	 	<a href="{{ url_for('admin_results.index', quiz_id=quiz['id'], offset = offset + limit) }}">Next page</a>
+  	 {% endif %}
+  </p>
+  
+<div id="takingDetails"></div>  
+  
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">  
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js" crossorigin="anonymous"></script>
+<script type="text/javascript">
+function selectAll(chk) {
+	if(chk.checked) jQuery('.chk').prop('checked', true);
+	else jQuery('.chk').prop('checked', false);
+	
+	showHideButton();
+}
+
+function showHideButton() {
+	var anyChecked = false;
+	
+	jQuery('.chk').each(function(e, elt) {
+		if(elt.checked) {
+			anyChecked = true;
+			return true;
+		}
+	});
+	
+	if(anyChecked) jQuery('#massFrm').show();
+	else jQuery('#massFrm').hide();
+}
+
+function confirmDelTakings(frm) {
+	if(confirm('Are you sure?')) {
+		frm.del_takings.value = 1;
+		frm.submit();
+	}
+}
+
+function loadDetails(id) {
+	$.ajax({
+	    url: '{{request.base_url}}?view_taking_id=' + id,	    
+	    success: function(data) {
+	      $("#takingDetails").html(data).dialog({modal:true, width: "80%", maxWidth: "768px"}).dialog('open');
+	    }
+   });
+}
+</script>  
+{% endblock %}

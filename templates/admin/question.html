@@ -1,0 +1,80 @@
+{% extends 'admin-base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Add/Edit Question In "{{ quiz.name }}"{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+
+<p><a href="{{ url_for('admin.questions', quiz_id = quiz['id']) }}">Back to questions</a></p>
+
+<form method="post" class="admin-form">
+	<fieldset>
+		<legend>Question</legend>
+		
+		<p><input type="checkbox" name="is_inactive" value="1" {% if question['is_inactive']  %}checked{% endif %}>  Deactivate this question. This will exclude it from showing on the quiz, counting it, including it in reports etc.
+</p>
+		<p><textarea name="question" required class="rtf">{{ request.form.question or question.question or ''}}</textarea></p>		
+		
+	</fieldset>	
+	
+	<fieldset>
+		<legend>Answer type</legend>
+		
+		<p>
+			<input type="radio" name="answer_type" value="radio" {% if question['answer_type'] == 'radio' or not question %}checked{% endif %}> Single choice &nbsp;
+			<input type="radio" name="answer_type" value="checkbox" {% if question['answer_type'] == 'checkbox' %}checked{% endif %}> Multiple choices &nbsp;
+			<input type="radio" name="answer_type" value="textarea" {% if question['answer_type'] == 'textarea' %}checked{% endif %}> Open end (essay) &nbsp;
+		</p>
+		
+		<p><input type="checkbox" name="is_required" value="1" {% if question['is_required'] %}checked{% endif %}>  This is a required question</p>
+		
+		<p><input type="checkbox" name="is_survey" value="1" {% if question['is_survey'] %}checked{% endif %}>  This is a survey question. This means that it will not display correct or wrong checkmark at the end and will not be counted in the number of correct, wrong, or unanswered questions.</p>
+	</fieldset>	
+	
+	<fieldset>
+		<legend>Answers</legend>
+		
+		{% if count_answers %}
+			{% for answer in answers %}
+				<p><textarea name="answer_{{answer['id']}}">{{answer['answer']}}</textarea>
+					<input type="radio" name="correct_{{answer['id']}}" value="1" {% if answer['correct'] %}checked{% endif %}> Correct answer
+					Points: <input type="text" size="4" name="points_{{answer['id']}}" value="{{ answer['points']}}">				
+				</p>
+			{% endfor %}
+		{% else %}
+		{% endif %}
+		<p><textarea name="answer"></textarea>
+					<input type="radio" name="correct" value="1"> Correct answer
+					Points: <input type="text" size="4" name="points">				
+				</p>
+		{% if not count_answers %}
+			{% for i in range(1, 5) %}
+				<p><textarea name="answer"></textarea>
+					<input type="radio" name="correct" value="1"> Correct answer
+					Points: <input type="text" size="4" name="points">				
+				</p>
+			{% endfor %}
+		{% endif %}		
+	</fieldset>		
+	
+	<fieldset>
+		<legend>Explanation / Feedback</legend>
+		
+		<p><textarea name="feedback" class="rtf">{{ request.form.feedback or question.feedback or ''}}</textarea></p>		
+		
+		<p>You can use this field to explain the correct answer. This will be shown only at the end of the quiz if you have selected the option to display the correct answers. You can use the [[[split]]] tag to specify different feedback for correctly or incorrectly answered question. Place the explanation that will be shown for correct answer before the [[[split]]] tag, and the one that will be shown for wrong answer after the [[[split]]] tag. Using the split tag will NOT work in "Show the answer of a question immediately after the user have selected an answer." mode.</p>
+	</fieldset>	
+	
+	<fieldset>
+		<p><input type="submit" name="save" value="Save">
+		<input type="button" value="Delete" onclick="confirmDelete(this.form);"></p>
+		<input type="hidden" name="del" value="0">	
+	</fieldset>
+</form>
+
+<script>
+
+</script>
+
+{% endblock %}

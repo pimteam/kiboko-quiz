@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Quizzes{% endblock %}</h1>
+
+{% endblock %}
+
+{% block content %}
+  {% for quiz in quizzes %}
+    <article class="post">
+      <header>
+        <div>
+          <h1>{{ quiz['name'] }}</h1>          
+          <div class="about">Created on {{ quiz['added_on'] }}</div>
+        </div>
+      </header>
+      <p class="body">{{ quiz['description']|safe }}</p>
+      <p><a href="{{ url_for('quizzes.quiz', id=quiz['id']) }}">Take quiz</a></p>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+  {% if not quizzes %}
+  <p>No quizzes yet.</p>
+  {% endif %}
+{% endblock %}
